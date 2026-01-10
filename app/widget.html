@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="style.css">
+	<style>
+		.hidden {
+			display: none;
+		}
+
+		#message-container {
+			padding: 20px;
+			text-align: center;
+			font-family: sans-serif;
+			color: #555;
+		}
+
+		.error-border {
+			border: 1px solid red;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="message-container" class="hidden">
+		<h3>Ticket Audit is only available for Closed tickets.</h3>
+	</div>
+
+	<div id="main-widget-content" class="hidden">
+		<div class="widget-container">
+			<h2 class="title">Ticket Audit Fields Review</h2>
+			<div class="audit-form">
+				<div class="field-block">
+					<label>Priority</label>
+					<select id="priority-dropdown">
+						<option value="">-- Select Priority --</option>
+						<option value="Not Answered">Not Answered</option>
+						<option value="Correct">Correct</option>
+						<option value="Incorrect">Incorrect</option>
+					</select>
+					<label class="sub-label">Correct Priority Reason</label>
+					<textarea id="priority-reason" placeholder="Enter reason..."></textarea>
+				</div>
+
+				<hr class="separator">
+
+				<div class="field-block">
+					<label>Resolution Code</label>
+					<select id="res-code-dropdown">
+						<option value="">-- Select Code --</option>
+						<option value="Not Answered">Not Answered</option>
+						<option value="Correct">Correct</option>
+						<option value="Incorrect">Incorrect</option>
+					</select>
+					<label class="sub-label">Correct Resolution Code Reason</label>
+					<textarea id="res-reason" placeholder="Enter reason..."></textarea>
+				</div>
+
+				<hr class="separator">
+
+				<div class="field-block">
+					<label>Contact Information</label>
+					<select id="contact-info-dropdown">
+						<option value="">-- Select Status --</option>
+						<option value="Not Complete">Not Complete</option>
+						<option value="Correct">Correct</option>
+						<option value="Incorrect">Incorrect</option>
+					</select>
+					<label class="sub-label">Correct Contact Information</label>
+					<textarea id="contact-info-reason" placeholder="Enter details..."></textarea>
+				</div>
+			</div>
+		</div>
+
+		<div class="footer-actions">
+			<button id="submit-audit" class="submit-btn">Submit Audit</button>
+			<p id="status-msg"></p>
+		</div>
+	</div>
+
+	<script src="https://js.zohostatic.com/support/developer_sdk/v1/js/ZohoDeskClientSDK.min.js"></script>
+	<script>
+		let currentTicket = {};
+		let currentUser = {}; // Global variable to store user info
+
+		window.onload = function () {
+			ZOHODESK.extension.onload().then(function (App) {
+
+				// 1. Fetch User Info and store it globally
+				ZOHODESK.get('user').then(function (userData) {
+					if (userData && userData.user) {
+						currentUser = userData.user;
+						console.log("Logged in as:", currentUser.name, "(ID:", currentUser.id + ")");
+					}
+				});
+
+				// 2. Fetch Ticket Info
+				ZOHODESK.get('ticket').then(function (res) {
+					if (res.status === 'success') {
+						currentTicket = res.ticket;
+						const mainContent = document.getElementById('main-widget-content');
+						const msgContainer = document.getElementById('message-container');
+
+						if (currentTicket.status == 'Closed') {
+							mainContent.classList.remove('hidden');
+						} else {
+							msgContainer.classList.remove('hidden');
+						}
+					}
+				});
+
+				// 3. Submit Logic
+				// 3. Submit Logic
+				document.getElementById('submit-audit').onclick = function () {
+					const statusMsg = document.getElementById('status-msg');
+					const fieldIds = [
+						'priority-dropdown', 'priority-reason',
+						'res-code-dropdown', 'res-reason',
+						'contact-info-dropdown', 'contact-info-reason'
+					];
+
+					let isFormValid = true;
+					fieldIds.forEach(id => {
+						const el = document.getElementById(id);
+						if (!el.value.trim()) {
+							el.classList.add('error-border');
+							isFormValid = false;
+						} else {
+							el.classList.remove('error-border');
+						}
+					});
+
+					if (!isFormValid) {
+						statusMsg.innerText = "All fields are mandatory.";
+						statusMsg.style.color = "#e53935";
+						return;
+					}
+
+					statusMsg.innerText = "Submitting...";
+					statusMsg.style.color = "#666";
+
+					const auditData = {
+						"name": currentTicket.subject || "No Subject",
+						"department": currentTicket.departmentId,
+						"owner": currentUser.id,
+						"cf": {
+							"cf_ticket_number_1": currentTicket.number,
+							"cf_ticket_number": currentTicket.id.toString(),
+							"cf_priority": document.getElementById('priority-dropdown').value,
+							"cf_correct_priority_reason": document.getElementById('priority-reason').value,
+							"cf_resolution_code": document.getElementById('res-code-dropdown').value,
+							"cf_correct_resolution_code_reason": document.getElementById('res-reason').value,
+							"cf_contact_information": document.getElementById('contact-info-dropdown').value,
+							"cf_correct_contact_information": document.getElementById('contact-info-reason').value
+						}
+					};
+
+					// --- UPDATED REQUEST LOGIC ---
+					ZOHODESK.request({
+						url: 'https://desk.zoho.com/api/v1/cm_ticket_audits',
+						type: 'POST',
+						postBody: auditData,
+						headers: { "orgId": "850352696", "featureFlags": "lookUp" },
+						connectionLinkName: "zdesk"
+					}).then(function (response) {
+						// Clear the console to keep it clean for the new entry
+						console.clear();
+
+						// Log the successful response
+						console.log("Audit Submission Success:", response);
+
+						statusMsg.innerText = "Audit Submitted Successfully!";
+						statusMsg.style.color = "green";
+
+						// Optional: Clear form fields
+						fieldIds.forEach(id => document.getElementById(id).value = "");
+					}).catch(function (error) {
+						console.clear();
+
+						// Log the error details
+						console.error("API Error Details:", error);
+
+						statusMsg.innerText = "Submission Error.";
+						statusMsg.style.color = "red";
+					});
+				};
+
+			});
+		};
+	</script>
+</body>
+
+</html>
