@@ -5,6 +5,7 @@
 	<meta charset="UTF-8">
 	<link rel="stylesheet" href="style.css">
 	<style>
+		/* Added simple display toggle classes */
 		.hidden {
 			display: none;
 		}
@@ -14,10 +15,6 @@
 			text-align: center;
 			font-family: sans-serif;
 			color: #555;
-		}
-
-		.error-border {
-			border: 1px solid red;
 		}
 	</style>
 </head>
@@ -30,9 +27,10 @@
 	<div id="main-widget-content" class="hidden">
 		<div class="widget-container">
 			<h2 class="title">Ticket Audit Fields Review</h2>
+
 			<div class="audit-form">
 				<div class="field-block">
-					<label>Priority</label>
+					<label>Priority <span class="info-icon"></span></label>
 					<select id="priority-dropdown">
 						<option value="">-- Select Priority --</option>
 						<option value="Not Answered">Not Answered</option>
@@ -46,7 +44,7 @@
 				<hr class="separator">
 
 				<div class="field-block">
-					<label>Resolution Code</label>
+					<label>Resolution Code <span class="info-icon"></span></label>
 					<select id="res-code-dropdown">
 						<option value="">-- Select Code --</option>
 						<option value="Not Answered">Not Answered</option>
@@ -60,14 +58,14 @@
 				<hr class="separator">
 
 				<div class="field-block">
-					<label>Contact Information</label>
+					<label>Contact Information <span class="info-icon"></span></label>
 					<select id="contact-info-dropdown">
 						<option value="">-- Select Status --</option>
 						<option value="Not Complete">Not Complete</option>
 						<option value="Correct">Correct</option>
 						<option value="Incorrect">Incorrect</option>
 					</select>
-					<label class="sub-label">Correct Contact Information</label>
+					<label class="sub-label">Correct Contact Information <span class="info-icon">ⓘ</span></label>
 					<textarea id="contact-info-reason" placeholder="Enter details..."></textarea>
 				</div>
 			</div>
@@ -82,38 +80,43 @@
 	<script src="https://js.zohostatic.com/support/developer_sdk/v1/js/ZohoDeskClientSDK.min.js"></script>
 	<script>
 		let currentTicket = {};
-		let currentUser = {}; // Global variable to store user info
+		let currentUser = {};
 
 		window.onload = function () {
 			ZOHODESK.extension.onload().then(function (App) {
+				// ZOHODESK.invoke("RESIZE", { width: "100%", height: "100%" });
 
-				// 1. Fetch User Info and store it globally
 				ZOHODESK.get('user').then(function (userData) {
-					if (userData && userData.user) {
-						currentUser = userData.user;
-						console.log("Logged in as:", currentUser.name, "(ID:", currentUser.id + ")");
-					}
-				});
+						if (userData && userData.user) {
+							currentUser = userData.user;
+							console.clear();
+							console.log("Logged in as:", currentUser.name, "(ID:", currentUser.id + ")");
+						}
+					}).catch(function (err) {
+						console.error("Error fetching user info:", err);
+					});
 
-				// 2. Fetch Ticket Info
 				ZOHODESK.get('ticket').then(function (res) {
+
 					if (res.status === 'success') {
 						currentTicket = res.ticket;
+
 						const mainContent = document.getElementById('main-widget-content');
 						const msgContainer = document.getElementById('message-container');
 
 						if (currentTicket.status == 'Closed') {
 							mainContent.classList.remove('hidden');
+							msgContainer.classList.add('hidden');
 						} else {
+							mainContent.classList.add('hidden');
 							msgContainer.classList.remove('hidden');
 						}
 					}
 				});
 
-				// 3. Submit Logic
-				// 3. Submit Logic
 				document.getElementById('submit-audit').onclick = function () {
 					const statusMsg = document.getElementById('status-msg');
+					
 					const fieldIds = [
 						'priority-dropdown', 'priority-reason',
 						'res-code-dropdown', 'res-reason',
@@ -121,11 +124,15 @@
 					];
 
 					let isFormValid = true;
+					let firstErrorField = null;
+
 					fieldIds.forEach(id => {
 						const el = document.getElementById(id);
 						if (!el.value.trim()) {
-							el.classList.add('error-border');
+							el.classList.add('error-border', 'shake');
 							isFormValid = false;
+							if (!firstErrorField) firstErrorField = el;
+							setTimeout(() => el.classList.remove('shake'), 400);
 						} else {
 							el.classList.remove('error-border');
 						}
@@ -134,6 +141,7 @@
 					if (!isFormValid) {
 						statusMsg.innerText = "All fields are mandatory.";
 						statusMsg.style.color = "#e53935";
+						firstErrorField.focus();
 						return;
 					}
 
@@ -156,36 +164,28 @@
 						}
 					};
 
-					// --- UPDATED REQUEST LOGIC ---
 					ZOHODESK.request({
 						url: 'https://desk.zoho.com/api/v1/cm_ticket_audits',
 						type: 'POST',
 						postBody: auditData,
 						headers: { "orgId": "850352696", "featureFlags": "lookUp" },
 						connectionLinkName: "zdesk"
-					}).then(function (response) {
-						// Clear the console to keep it clean for the new entry
-						console.clear();
-
-						// Log the successful response
-						console.log("Audit Submission Success:", response);
-
+					}).then(function () {
 						statusMsg.innerText = "Audit Submitted Successfully!";
 						statusMsg.style.color = "green";
-
-						// Optional: Clear form fields
-						fieldIds.forEach(id => document.getElementById(id).value = "");
+						fieldIds.forEach(id => {
+							document.getElementById(id).value = "";
+							document.getElementById(id).classList.remove('error-border');
+						});
 					}).catch(function (error) {
-						console.clear();
-
-						// Log the error details
-						console.error("API Error Details:", error);
-
 						statusMsg.innerText = "Submission Error.";
 						statusMsg.style.color = "red";
 					});
 				};
 
+				document.querySelectorAll('select, textarea').forEach(el => {
+					el.addEventListener('input', () => el.classList.remove('error-border'));
+				});
 			});
 		};
 	</script>
