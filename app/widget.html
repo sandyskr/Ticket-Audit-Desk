@@ -78,117 +78,144 @@
 	</div>
 
 	<script src="https://js.zohostatic.com/support/developer_sdk/v1/js/ZohoDeskClientSDK.min.js"></script>
-	<script>
-		let currentTicket = {};
-		let currentUser = {};
+	<script src="https://js.zohostatic.com/support/developer_sdk/v1/js/ZohoDeskClientSDK.min.js"></script>
+<script>
+    let currentTicket = {};
+    let currentUser = {};
 
-		window.onload = function () {
-			ZOHODESK.extension.onload().then(function (App) {
-				// ZOHODESK.invoke("RESIZE", { width: "100%", height: "100%" });
+    window.onload = function () {
+        console.clear();
+        console.log("Audit Widget: Window Loaded. Initializing SDK...");
 
-				ZOHODESK.get('user').then(function (userData) {
-						if (userData && userData.user) {
-							currentUser = userData.user;
-							console.clear();
-							console.log("Logged in as:", currentUser.name, "(ID:", currentUser.id + ")");
-						}
-					}).catch(function (err) {
-						console.error("Error fetching user info:", err);
-					});
+        ZOHODESK.extension.onload().then(function (App) {
+            console.log("Audit Widget: SDK Handshake Successful.", App);
 
-				ZOHODESK.get('ticket').then(function (res) {
+            // 1. Fetch User Info
+            ZOHODESK.get('user').then(function (userData) {
+                console.log("Audit Widget: Raw User Data Received:", userData);
+                if (userData && userData.user) {
+                    currentUser = userData.user;
+                    console.log("Audit Widget: User context set:", currentUser.name, "(ID:", currentUser.id + ")");
+                } else {
+                    console.warn("Audit Widget: User data structure unexpected.");
+                }
+            }).catch(function (err) {
+                console.error("Audit Widget: Error fetching user info:", err);
+            });
 
-					if (res.status === 'success') {
-						currentTicket = res.ticket;
+            // 2. Fetch Ticket Info
+            ZOHODESK.get('ticket').then(function (res) {
+                console.log("Audit Widget: Raw Ticket Response:", res);
 
-						const mainContent = document.getElementById('main-widget-content');
-						const msgContainer = document.getElementById('message-container');
+                if (res.status === 'success') {
+                    currentTicket = res.ticket;
+                    console.log("Audit Widget: Ticket Context Loaded. Status:", currentTicket.status, "ID:", currentTicket.id);
 
-						if (currentTicket.status == 'Closed') {
-							mainContent.classList.remove('hidden');
-							msgContainer.classList.add('hidden');
-						} else {
-							mainContent.classList.add('hidden');
-							msgContainer.classList.remove('hidden');
-						}
-					}
-				});
+                    const mainContent = document.getElementById('main-widget-content');
+                    const msgContainer = document.getElementById('message-container');
 
-				document.getElementById('submit-audit').onclick = function () {
-					const statusMsg = document.getElementById('status-msg');
-					
-					const fieldIds = [
-						'priority-dropdown', 'priority-reason',
-						'res-code-dropdown', 'res-reason',
-						'contact-info-dropdown', 'contact-info-reason'
-					];
+                    if (currentTicket.status === 'Closed') {
+                        console.log("Audit Widget: Ticket is Closed. Displaying form.");
+                        mainContent.classList.remove('hidden');
+                        msgContainer.classList.add('hidden');
+                    } else {
+                        console.log("Audit Widget: Ticket is NOT Closed. Showing restriction message.");
+                        mainContent.classList.add('hidden');
+                        msgContainer.classList.remove('hidden');
+                    }
+                } else {
+                    console.error("Audit Widget: Ticket fetch failed with status:", res.status);
+                }
+            }).catch(function(err) {
+                console.error("Audit Widget: Exception during ZOHODESK.get('ticket'):", err);
+            });
 
-					let isFormValid = true;
-					let firstErrorField = null;
+            // 3. Handle Form Submission
+            document.getElementById('submit-audit').onclick = function () {
+                console.log("Audit Widget: Submit Button Clicked.");
+                const statusMsg = document.getElementById('status-msg');
+                
+                const fieldIds = [
+                    'priority-dropdown', 'priority-reason',
+                    'res-code-dropdown', 'res-reason',
+                    'contact-info-dropdown', 'contact-info-reason'
+                ];
 
-					fieldIds.forEach(id => {
-						const el = document.getElementById(id);
-						if (!el.value.trim()) {
-							el.classList.add('error-border', 'shake');
-							isFormValid = false;
-							if (!firstErrorField) firstErrorField = el;
-							setTimeout(() => el.classList.remove('shake'), 400);
-						} else {
-							el.classList.remove('error-border');
-						}
-					});
+                let isFormValid = true;
+                let firstErrorField = null;
 
-					if (!isFormValid) {
-						statusMsg.innerText = "All fields are mandatory.";
-						statusMsg.style.color = "#e53935";
-						firstErrorField.focus();
-						return;
-					}
+                fieldIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el.value.trim()) {
+                        el.classList.add('error-border', 'shake');
+                        isFormValid = false;
+                        if (!firstErrorField) firstErrorField = el;
+                        setTimeout(() => el.classList.remove('shake'), 400);
+                    } else {
+                        el.classList.remove('error-border');
+                    }
+                });
 
-					statusMsg.innerText = "Submitting...";
-					statusMsg.style.color = "#666";
+                if (!isFormValid) {
+                    console.warn("Audit Widget: Form validation failed.");
+                    statusMsg.innerText = "All fields are mandatory.";
+                    statusMsg.style.color = "#e53935";
+                    firstErrorField.focus();
+                    return;
+                }
 
-					const auditData = {
-						"name": currentTicket.subject || "No Subject",
-						"department": currentTicket.departmentId,
-						"owner": currentUser.id,
-						"cf": {
-							"cf_ticket_number_1": currentTicket.number,
-							"cf_ticket_number": currentTicket.id.toString(),
-							"cf_priority": document.getElementById('priority-dropdown').value,
-							"cf_correct_priority_reason": document.getElementById('priority-reason').value,
-							"cf_resolution_code": document.getElementById('res-code-dropdown').value,
-							"cf_correct_resolution_code_reason": document.getElementById('res-reason').value,
-							"cf_contact_information": document.getElementById('contact-info-dropdown').value,
-							"cf_correct_contact_information": document.getElementById('contact-info-reason').value
-						}
-					};
+                const auditData = {
+                    "name": currentTicket.subject || "No Subject",
+                    "department": currentTicket.departmentId,
+                    "owner": currentUser.id,
+                    "cf": {
+                        "cf_ticket_number_1": currentTicket.number,
+                        "cf_ticket_number": currentTicket.id.toString(),
+                        "cf_priority": document.getElementById('priority-dropdown').value,
+                        "cf_correct_priority_reason": document.getElementById('priority-reason').value,
+                        "cf_resolution_code": document.getElementById('res-code-dropdown').value,
+                        "cf_correct_resolution_code_reason": document.getElementById('res-reason').value,
+                        "cf_contact_information": document.getElementById('contact-info-dropdown').value,
+                        "cf_correct_contact_information": document.getElementById('contact-info-reason').value
+                    }
+                };
 
-					ZOHODESK.request({
-						url: 'https://desk.zoho.com/api/v1/cm_ticket_audits',
-						type: 'POST',
-						postBody: auditData,
-						headers: { "orgId": "850352696", "featureFlags": "lookUp" },
-						connectionLinkName: "zdesk"
-					}).then(function () {
-						statusMsg.innerText = "Audit Submitted Successfully!";
-						statusMsg.style.color = "green";
-						fieldIds.forEach(id => {
-							document.getElementById(id).value = "";
-							document.getElementById(id).classList.remove('error-border');
-						});
-					}).catch(function (error) {
-						statusMsg.innerText = "Submission Error.";
-						statusMsg.style.color = "red";
-					});
-				};
+                console.log("Audit Widget: Preparing to POST. Payload:", JSON.stringify(auditData));
 
-				document.querySelectorAll('select, textarea').forEach(el => {
-					el.addEventListener('input', () => el.classList.remove('error-border'));
-				});
-			});
-		};
-	</script>
+                statusMsg.innerText = "Submitting...";
+                statusMsg.style.color = "#666";
+
+                ZOHODESK.request({
+                    url: 'https://desk.zoho.com/api/v1/cm_ticket_audits',
+                    type: 'POST',
+                    postBody: auditData,
+                    headers: { "orgId": "850352696", "featureFlags": "lookUp" },
+                    connectionLinkName: "zdesk"
+                }).then(function (submitRes) {
+                    console.log("Audit Widget: API Success Response:", submitRes);
+                    statusMsg.innerText = "Audit Submitted Successfully!";
+                    statusMsg.style.color = "green";
+                    
+                    fieldIds.forEach(id => {
+                        document.getElementById(id).value = "";
+                        document.getElementById(id).classList.remove('error-border');
+                    });
+                }).catch(function (error) {
+                    console.error("Audit Widget: API Submission Error Details:", error);
+                    statusMsg.innerText = "Submission Error. Check console.";
+                    statusMsg.style.color = "red";
+                });
+            };
+
+            document.querySelectorAll('select, textarea').forEach(el => {
+                el.addEventListener('input', () => el.classList.remove('error-border'));
+            });
+
+        }).catch(function(err) {
+            console.error("Audit Widget: SDK Initialization Failed!", err);
+        });
+    };
+</script>
 </body>
 
 </html>

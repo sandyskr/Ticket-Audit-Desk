@@ -4,13 +4,14 @@ body {
     background-color: #fff;
     margin: 0;
     line-height: 1.4;
+    overflow-x: hidden;
 }
 
 .widget-container {
-    /* Increased bottom padding so floating footer doesn't hide fields */
     padding: 15px 15px 120px 15px; 
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
 .title {
@@ -55,7 +56,6 @@ label:after {
     margin-left: 4px;
 }
 
-/* Input/Select Styling */
 select, textarea {
     border: none;
     border-bottom: 1px solid #ebebeb;
@@ -88,13 +88,11 @@ textarea:focus {
     margin: 15px 0;
 }
 
-/* Error States */
 .error-border {
     border-bottom: 2px solid #e53935 !important;
     background-color: #fff9f9 !important;
 }
 
-/* Footer & Button */
 .footer-actions {
     position: fixed;
     bottom: 0;
@@ -130,7 +128,6 @@ textarea:focus {
     min-height: 15px;
 }
 
-/* Animations */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-4px); }
@@ -141,7 +138,6 @@ textarea:focus {
     animation: shake 0.2s ease-in-out 0s 2;
 }
 
-/* Dropdown Arrow */
 select {
     appearance: none;
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M3.5%205l3.5%203.5L10.5%205z%22%2F%3E%3C%2Fsvg%3E");

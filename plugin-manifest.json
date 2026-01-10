@@ -5,7 +5,9 @@
   "service": "DESK",
   "storage": false,
   "type": "personal",
-  "whiteListedDomains": ["https://desk.zoho.com"],
+  "whiteListedDomains": [
+    "https://desk.zoho.com"
+  ],
   "modules": {
     "widgets": [
       {
@@ -20,7 +22,15 @@
   "cspDomains": {
     "connect-src": []
   },
-  "zohoAuthorisation": {},
+  "zohoAuthorisation": {
+    "type":"connectors",
+    "connectionLinkName": "zdesk",
+    "connectionName": "zdesk",
+    "serviceName": "zlabs_integration",
+    "userAccess": false,
+    "isUserDefinedService": false,
+    "sharedBy": "850352696"
+  },
   "connectors": [],
   "config": [],
   "moduleSupport": false
