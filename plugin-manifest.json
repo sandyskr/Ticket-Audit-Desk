@@ -13,7 +13,7 @@
       {
         "location": "desk.ticket.detail.rightpanel",
         "url": "/app/widget.html",
-        "name": "Desk Extension",
+        "name": "Ticket Audit",
         "logo": "/app/img/logo.png",
         "icon": "/app/img/icon.png"
       }
@@ -25,11 +25,27 @@
   "zohoAuthorisation": {
     "type":"connectors",
     "connectionLinkName": "zdesk",
-    "connectionName": "zdesk",
-    "serviceName": "zlabs_integration",
-    "userAccess": false,
-    "isUserDefinedService": false,
-    "sharedBy": "850352696"
+	"connectionName": "zdesk",
+	"serviceName": "zlabs_integration",
+	"userAccess": false,
+	"isUserDefinedService": false,
+	"sharedBy": "850352696",
+	"scope": [
+		"Desk.tickets.ALL",
+		"Desk.tasks.ALL",
+		"Desk.settings.ALL",
+		"Desk.extensions.ALL",
+		"Desk.zia.ALL",
+		"Desk.contacts.ALL",
+		"Desk.basic.ALL",
+		"Desk.articles.ALL",
+		"Desk.calls.ALL",
+		"Desk.events.ALL",
+		"Desk.community.ALL",
+		"Desk.integrations.ALL",
+		"Desk.custommodule.ALL"
+	]
+
   },
   "connectors": [],
   "config": [],
