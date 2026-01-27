@@ -1,20 +1,37 @@
 let currentTicket = {};
 let currentUser = {};
 
-// Helper to handle conditional visibility
-function toggleReasonField(dropdownId, wrapperId, triggerValues) {
-    const dropdown = document.getElementById(dropdownId);
-    const wrapper = document.getElementById(wrapperId);
-    const textarea = wrapper.querySelector('textarea');
+function updateSectionVisibility() {
+    const sections = [
+        { containerId: 'section-closing', wrapperId: 'closing-reason-wrapper' },
+        { containerId: 'section-customer', wrapperId: 'customer-reason-wrapper' },
+        { containerId: 'section-categories', wrapperId: 'categories-reason-wrapper' }
+    ];
 
-    if (triggerValues.includes(dropdown.value)) {
-        wrapper.classList.remove('hidden');
-    } else {
-        wrapper.classList.add('hidden');
-        textarea.value = ""; // Clear value if hidden
-        textarea.classList.remove('error-border');
-    }
+    sections.forEach(sec => {
+        const container = document.getElementById(sec.containerId);
+        const wrapper = document.getElementById(sec.wrapperId);
+        const textarea = wrapper.querySelector('textarea');
+
+        const allDropdowns = Array.from(container.querySelectorAll('.audit-dropdown'));
+        
+        // Only consider dropdowns that are currently VISIBLE to the user
+        const hasIncorrect = allDropdowns.some(d => {
+            const isVisible = d.offsetParent !== null; // Standard JS check for visibility
+            return isVisible && d.value === 'Incorrect';
+        });
+
+        if (hasIncorrect) {
+            wrapper.classList.remove('hidden');
+        } else {
+            wrapper.classList.add('hidden');
+            textarea.value = ""; 
+            textarea.classList.remove('error-border');
+        }
+    });
 }
+
+
 
 window.onload = function () {
     console.clear();
@@ -46,23 +63,32 @@ window.onload = function () {
                 console.log("Audit Widget: Ticket Context Loaded. Dept ID:", currentTicket.departmentId);
                 const mainContent = document.getElementById('main-widget-content');
                 const msgContainer = document.getElementById('message-container');
-                const deptFields = document.getElementById('department-specific-fields');
+                // const deptFields = document.getElementById('department-specific-fields');
+                const specialFields = document.getElementById('special-dept-fields');
 
+                
+        
+        console.log("Audit Widget: Ticket ID found. Searching audits...");
+
+         
                 if (currentTicket.status === 'Closed') {
                     console.log("Audit Widget: Ticket is Closed. Displaying form.");
                     mainContent.classList.remove('hidden');
                     msgContainer.classList.add('hidden');
                     if (currentTicket.departmentId === "976852000001991044") {
                         console.log("Audit Widget: Special department detected. Showing extra fields.");
-                        deptFields.classList.remove('hidden');
+                        // deptFields.classList.remove('hidden');
+                        specialFields.classList.remove('hidden');
                     } else {
-                        deptFields.classList.add('hidden');
+                        // deptFields.classList.add('hidden');
+                        specialFields.classList.add('hidden');
                     }
                 } else {
                     console.log("Audit Widget: Ticket is NOT Closed. Showing restriction message.");
                     mainContent.classList.add('hidden');
                     msgContainer.classList.remove('hidden');
                 }
+                updateSectionVisibility();
             } else {
                 console.error("Audit Widget: Ticket fetch failed with status:", res.status);
             }
@@ -71,59 +97,38 @@ window.onload = function () {
         });
 
         // Add Event Listeners for Dynamic UI
-        document.getElementById('priority-dropdown').addEventListener('change', function () {
-            toggleReasonField('priority-dropdown', 'priority-reason-wrapper', ['Incorrect']);
+        document.querySelectorAll('.audit-dropdown').forEach(dropdown => {
+            dropdown.addEventListener('change', updateSectionVisibility);
         });
-        document.getElementById('res-code-dropdown').addEventListener('change', function () {
-            toggleReasonField('res-code-dropdown', 'res-reason-wrapper', ['Incorrect']);
-        });
-        document.getElementById('contact-info-dropdown').addEventListener('change', function () {
-            toggleReasonField('contact-info-dropdown', 'contact-info-reason-wrapper', ['Incorrect', 'Not Complete']);
-        });
+
 
         // 3. Handle Form Submission
         document.getElementById('submit-audit').onclick = function () {
             console.log("Audit Widget: Submit Button Clicked.");
             const statusMsg = document.getElementById('status-msg');
-
-            // Define logic for which fields are mandatory based on visibility
-            const fieldsToValidate = [
-                'priority-dropdown',
-                'res-code-dropdown',
-                'contact-info-dropdown'
-            ];
-
-            // Only add reason fields to validation if their wrapper is visible
-            if (!document.getElementById('priority-reason-wrapper').classList.contains('hidden')) fieldsToValidate.push('priority-reason');
-            if (!document.getElementById('res-reason-wrapper').classList.contains('hidden')) fieldsToValidate.push('res-reason');
-            if (!document.getElementById('contact-info-reason-wrapper').classList.contains('hidden')) fieldsToValidate.push('contact-info-reason');
-
-            const isSpecialDept = !document.getElementById('department-specific-fields').classList.contains('hidden');
-            if (isSpecialDept) {
-                fieldsToValidate.push('tenant-dropdown', 'reporter-dropdown', 'environment-dropdown');
-            }
-
             let isFormValid = true;
-            let firstErrorField = null;
-
-            // Validate only the relevant fields
-            fieldsToValidate.forEach(id => {
-                const el = document.getElementById(id);
-                if (!el.value.trim()) {
-                    el.classList.add('error-border', 'shake');
+            
+            document.querySelectorAll('.audit-dropdown').forEach(select => {
+                const isVisible = select.offsetParent !== null;
+                if (isVisible && !select.value) {
+                    select.classList.add('error-border');
                     isFormValid = false;
-                    if (!firstErrorField) firstErrorField = el;
-                    setTimeout(() => el.classList.remove('shake'), 400);
                 } else {
-                    el.classList.remove('error-border');
+                    select.classList.remove('error-border');
                 }
             });
 
+            document.querySelectorAll('.reason-wrapper:not(.hidden) textarea').forEach(txt => {
+                if (!txt.value.trim()) {
+                    txt.classList.add('error-border');
+                    isFormValid = false;
+                } else {
+                    txt.classList.remove('error-border');
+                }
+            });
             if (!isFormValid) {
-                console.warn("Audit Widget: Form validation failed.");
-                statusMsg.innerText = "All visible fields are mandatory.";
-                statusMsg.style.color = "#e53935";
-                if (firstErrorField) firstErrorField.focus();
+                statusMsg.innerText = "Please complete all fields.";
+                statusMsg.style.color = "red";
                 return;
             }
 
@@ -151,6 +156,8 @@ window.onload = function () {
 
             statusMsg.innerText = "Submitting...";
             statusMsg.style.color = "#666";
+
+
 
             ZOHODESK.request({
                 url: 'https://desk.zoho.com/api/v1/cm_ticket_audits',
