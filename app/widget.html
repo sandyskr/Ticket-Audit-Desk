@@ -3,176 +3,397 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
     <style>
+        /* --- ORIGINAL PREVIOUS CSS --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #333;
+            background-color: #fff;
+            margin: 0;
+            line-height: 1.4;
+            overflow-x: hidden;
+        }
+
+        .widget-container {
+            padding: 15px 15px 120px 15px;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .field-block {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        label:after {
+            content: " *";
+            color: #e53935;
+            font-weight: bold;
+        }
+
+        select,
+        textarea {
+            border: none;
+            border-bottom: 1px solid #ebebeb;
+            padding: 8px 0;
+            font-size: 13px;
+            outline: none;
+            background: transparent;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        select:focus,
+        textarea:focus {
+            border-bottom: 1px solid #2f7cf6;
+        }
+
+        textarea {
+            resize: none;
+            height: 35px;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            height: 65px;
+        }
+
+        .error-border {
+            border-bottom: 2px solid #e53935 !important;
+            background-color: #fff9f9 !important;
+        }
+
+        .footer-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 15px;
+            border-top: 1px solid #eee;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .submit-btn {
+            background-color: #2f7cf6;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #1a62d6;
+        }
+
+        #status-msg {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 8px;
+            min-height: 15px;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M3.5%205l3.5%203.5L10.5%205z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0;
+        }
+
+        /* --- DASHBOARD & UTILITY CSS --- */
         .hidden {
-            display: none;
+            display: none !important;
+        }
+
+        .dashboard-container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .audit-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .audit-card:hover {
+            transform: translateY(-2px);
+            border-color: #2f7cf6;
+        }
+
+        .audit-card h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .back-btn {
+            padding: 8px 0;
+            color: #2f7cf6;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .section-header {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 6px 10px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-blue {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .header-orange {
+            background-color: #fff3e0;
+            color: #f57c00;
         }
 
         #message-container {
-            padding: 20px;
+            padding: 40px;
             text-align: center;
-            font-family: sans-serif;
-            color: #555;
-        }
-
-        .reason-wrapper {
-            margin-top: 10px;
+            color: #888;
         }
     </style>
 </head>
 
 <body>
+
     <div id="message-container" class="hidden">
         <h3>Ticket Audit is only available for Closed tickets.</h3>
     </div>
 
+    <div id="audit-dashboard" class="dashboard-container">
+        <div class="audit-card" onclick="openAuditForm('closed')">
+            <h3>Closed Ticket Audit</h3>
+        </div>
+        <div class="audit-card" onclick="openAuditForm('call')">
+            <h3>Call Audit</h3>
+        </div>
+        <div class="audit-card" onclick="openAuditForm('priority')">
+            <h3>Ticket Priority Audit</h3>
+        </div>
+    </div>
+
     <div id="main-widget-content" class="hidden">
         <div class="widget-container">
+            <div class="back-btn" onclick="goBack()">← BACK TO SELECTION</div>
             <form id="audit-form">
 
-                <div class="audit-section" id="section-closing">
-                    <p><strong>Closing and Other</strong></p>
-                    <div class="field-block">
-                        <label>Ticket Priority</label>
-                        <select class="audit-dropdown" id="priority-dropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select>
+                <div id="closed-audit-sections" class="audit-group hidden">
+                    <div class="audit-section" id="section-closing">
+                        <div class="section-header header-blue">Closing and Other</div>
+                        <div class="field-block">
+                            <label>Ticket Priority</label>
+                            <select class="audit-dropdown" id="priority-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label>Resolution Code</label>
+                            <select class="audit-dropdown" id="res-code-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label>Ticket Resolution</label>
+                            <select class="audit-dropdown" id="ticket-resolution">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label>Ticket Subject</label>
+                            <select class="audit-dropdown" id="subject-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="reason-wrapper hidden" id="closing-reason-wrapper">
+                            <label class="sub-label">Closing Comments</label>
+                            <textarea id="closing-reason" placeholder="Explain incorrect selections..."></textarea>
+                        </div>
                     </div>
-                    <div class="field-block">
-                        <label>Resolution Code</label>
-                        <select class="audit-dropdown" id="res-code-dropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select>
+
+                    <hr class="separator">
+
+                    <div class="audit-section" id="section-customer">
+                        <div class="section-header header-orange">Customer and Environment Details</div>
+                        <div class="field-block">
+                            <label>Contact Information</label>
+                            <select class="audit-dropdown" id="contact-info-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label>Account</label>
+                            <select class="audit-dropdown" id="account-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div id="special-dept-fields" class="hidden">
+                            <div class="field-block">
+                                <label>Ticket Reporter</label>
+                                <select class="audit-dropdown" id="reporter-dropdown">
+                                    <option value="">-- Select --</option>
+                                    <option value="Correct">Correct</option>
+                                    <option value="Incorrect">Incorrect</option>
+                                </select>
+                            </div>
+                            <div class="field-block">
+                                <label>Ticket Tenant</label>
+                                <select class="audit-dropdown" id="tenant-dropdown">
+                                    <option value="">-- Select --</option>
+                                    <option value="Correct">Correct</option>
+                                    <option value="Incorrect">Incorrect</option>
+                                </select>
+                            </div>
+                            <div class="field-block">
+                                <label>Ticket Environment</label>
+                                <select class="audit-dropdown" id="environment-dropdown">
+                                    <option value="">-- Select --</option>
+                                    <option value="Correct">Correct</option>
+                                    <option value="Incorrect">Incorrect</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="reason-wrapper hidden" id="customer-reason-wrapper">
+                            <label class="sub-label">Customer/Env Comments (Required)</label>
+                            <textarea id="customer-reason" placeholder="Explain incorrect selections..."></textarea>
+                        </div>
                     </div>
-                    <div class="field-block">
-                        <label>Ticket Resolution</label>
-                        <select class="audit-dropdown" id="resolution-dropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
-                    <div class="field-block">
-                        <label>Ticket Subject</label>
-                        <select class="audit-dropdown" id="subject-dropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
-                    <div class="reason-wrapper hidden" id="closing-reason-wrapper">
-                        <label class="sub-label">Closing Comments</label>
-                        <textarea id="closing-reason" placeholder="Explain incorrect selections..."></textarea>
+
+                    <hr class="separator">
+
+                    <div class="audit-section" id="section-categories">
+                        <div class="section-header header-blue">Issue Description and Categories</div>
+                        <div class="field-block">
+                            <label>Ticket Classification</label>
+                            <select class="audit-dropdown" id="class-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label>Ticket Category</label>
+                            <select class="audit-dropdown" id="cat-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label>Ticket Sub Category</label>
+                            <select class="audit-dropdown" id="subcat-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label>Ticket Sub-Sub-Category</label>
+                            <select class="audit-dropdown" id="sscat-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="field-block">
+                            <label>Ticket Sub-Sub-Sub-Category</label>
+                            <select class="audit-dropdown" id="ssscat-dropdown">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+                        <div class="reason-wrapper hidden" id="categories-reason-wrapper">
+                            <label class="sub-label">Category Comments</label>
+                            <textarea id="categories-reason" placeholder="Explain incorrect selections..."></textarea>
+                        </div>
                     </div>
                 </div>
 
-                <hr>
-
-                <div class="audit-section" id="section-customer">
-                    <p><strong>Customer and Environment Details</strong></p>
-                    <div class="field-block">
-                        <label>Contact Information</label>
-                        <select class="audit-dropdown" id="contact-info-dropdown">
+                <div id="call-audit-sections" class="audit-group hidden">
+                    <div class="section-header header-blue">Section 1 (Customer Service)</div>
+                    <div class="field-block"><label>Narrow the Scope of the Call</label><select class="audit-dropdown"
+                            id="ca-scope">
                             <option value="">-- Select --</option>
                             <option value="Correct">Correct</option>
                             <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
-                    <div class="field-block">
-                        <label>Account</label>
-                        <select class="audit-dropdown" id="account-dropdown">
+                        </select></div>
+                    <div class="field-block"><label>Professional Tone</label><select class="audit-dropdown"
+                            id="ca-tone">
                             <option value="">-- Select --</option>
                             <option value="Correct">Correct</option>
                             <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
+                        </select></div>
+                    <textarea id="ca-reason-1" class="hidden" placeholder="Comments for Section 1..."></textarea>
 
-                    <div id="special-dept-fields" class="hidden">
-                        <div class="field-block">
-                            <label>Ticket Reporter</label>
-                            <select class="audit-dropdown" id="reporter-dropdown">
-                                <option value="">-- Select --</option>
-                                <option value="Correct">Correct</option>
-                                <option value="Incorrect">Incorrect</option>
-                            </select>
-                        </div>
-                        <div class="field-block">
-                            <label>Ticket Tenant</label>
-                            <select class="audit-dropdown" id="tenant-dropdown">
-                                <option value="">-- Select --</option>
-                                <option value="Correct">Correct</option>
-                                <option value="Incorrect">Incorrect</option>
-                            </select>
-                        </div>
-                        <div class="field-block">
-                            <label>Ticket Environment</label>
-                            <select class="audit-dropdown" id="environment-dropdown">
-                                <option value="">-- Select --</option>
-                                <option value="Correct">Correct</option>
-                                <option value="Incorrect">Incorrect</option>
-                            </select>
-                        </div>
+                    <div class="section-header header-orange" style="margin-top:20px">Section 2 (Process Knowledge)
                     </div>
-
-                    <div class="reason-wrapper hidden" id="customer-reason-wrapper">
-                        <label class="sub-label">Customer/Env Comments (Required)</label>
-                        <textarea id="customer-reason" placeholder="Explain incorrect selections..."></textarea>
-                    </div>
+                    <div class="field-block"><label>Policies and Procedures</label><select class="audit-dropdown"
+                            id="ca-policy">
+                            <option value="">-- Select --</option>
+                            <option value="Correct">Correct</option>
+                            <option value="Incorrect">Incorrect</option>
+                        </select></div>
+                    <textarea id="ca-reason-2" class="hidden" placeholder="Comments for Section 2..."></textarea>
                 </div>
 
-                <hr>
-
-                <div class="audit-section" id="section-categories">
-                    <p><strong>Issue Description and Categories</strong></p>
-                    <div class="field-block">
-                        <label>Ticket Classification</label>
-                        <select class="audit-dropdown" id="class-dropdown">
+                <div id="priority-audit-sections" class="audit-group hidden">
+                    <div class="section-header header-blue">Section 1 (Ticket Priority)</div>
+                    <div class="field-block"><label>Issue Priority</label><select class="audit-dropdown"
+                            id="pa-priority">
                             <option value="">-- Select --</option>
                             <option value="Correct">Correct</option>
                             <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
-                    <div class="field-block">
-                        <label>Ticket Category</label>
-                        <select class="audit-dropdown" id="cat-dropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
-                    <div class="field-block">
-                        <label>Ticket Sub Category</label>
-                        <select class="audit-dropdown" id="subcat-dropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
-                    <div class="field-block">
-                        <label>Ticket Sub-Sub-Category</label>
-                        <select class="audit-dropdown" id="sscat-dropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
-                    <div class="field-block">
-                        <label>Ticket Sub-Sub-Sub-Category</label>
-                        <select class="audit-dropdown" id="ssscat-dropdown">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select>
-                    </div>
-                    <div class="reason-wrapper hidden" id="categories-reason-wrapper">
-                        <label class="sub-label">Category Comments </label>
-                        <textarea id="categories-reason" placeholder="Explain incorrect selections..."></textarea>
-                    </div>
+                        </select></div>
+                    <textarea id="pa-reason-1" class="hidden"
+                        placeholder="Multiline Field for Priority Audit..."></textarea>
                 </div>
 
                 <div class="footer-actions">
@@ -182,6 +403,7 @@
             </form>
         </div>
     </div>
+
     <script src="https://js.zohostatic.com/support/developer_sdk/v1/js/ZohoDeskClientSDK.min.js"></script>
     <script src="script.js"></script>
 </body>
