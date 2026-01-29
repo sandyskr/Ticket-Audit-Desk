@@ -132,7 +132,9 @@ window.onload = function () {
 
         // Handle Submission
         document.getElementById('submit-audit').onclick = function () {
+            const submitBtn = document.getElementById('submit-audit');
             const statusMsg = document.getElementById('status-msg');
+            if (submitBtn.disabled) return;
             let isFormValid = true;
 
             // 1. Validate ONLY visible dropdowns
@@ -165,7 +167,10 @@ window.onload = function () {
                 statusMsg.style.color = "red";
                 return;
             }
-
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Processing...";
+            submitBtn.style.backgroundColor = "#ccc"; // Grey out the button
+            submitBtn.style.cursor = "not-allowed";
             // Payload Construction
             const auditData = {
                 "name": currentTicket.subject || "No Subject",
@@ -254,6 +259,11 @@ window.onload = function () {
                 console.error("Audit Widget: API Submission Error Details:", error);
                 statusMsg.innerText = "Submission Error. Check console.";
                 statusMsg.style.color = "red";
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Audit";
+                submitBtn.style.backgroundColor = "#2f7cf6";
+                submitBtn.style.cursor = "pointer";
             });
         };
     });
