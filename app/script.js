@@ -5,6 +5,27 @@ let activeAuditType = '';
 /**
  * UI Navigation Functions
  */
+
+function updateDashboardUI(auditId) {
+    if (auditId && auditId.trim() !== "") {
+        const auditUrl = `https://desk.zoho.com/agent/shijigroupintl1712612666536/infrasys-support/ticket-audits/details/${auditId}`;
+        const closedCard = document.querySelector(".audit-card[onclick*='closed']");
+
+        if (closedCard) {
+            closedCard.style.borderLeft = "5px solid #2f7cf6";
+            closedCard.style.background = "#f0f7ff";
+            closedCard.innerHTML = `
+                <h3 style="color: #1a62d6;">Closed Ticket Audit ✅</h3>
+                <p style="font-size: 12px; margin: 5px 0 0 0; color: #555;">
+                    Already submitted. <strong>Click to view record</strong>
+                </p>
+            `;
+            closedCard.onclick = function () {
+                window.open(auditUrl, '_blank');
+            };
+        }
+    }
+}
 function openAuditForm(type) {
     activeAuditType = type;
 
@@ -96,33 +117,11 @@ window.onload = function () {
             if (res.status === 'success') {
                 currentTicket = res.ticket;
 
+
+                currentTicket = res.ticket;
                 const existingAuditId = currentTicket.cf ? currentTicket.cf.cf_closed_ticket_audit_id : null;
-
-                if (existingAuditId && existingAuditId.trim() !== "") {
-                    const auditUrl = `https://desk.zoho.com/agent/shijigroupintl1712612666536/infrasys-support/ticket-audits/details/${existingAuditId}`;
-
-                    // 1. Find the Closed Ticket Audit Card
-                    const closedCard = document.querySelector(".audit-card[onclick*='closed']");
-
-                    if (closedCard) {
-                        // 2. Change the styling to indicate it's a link now
-                        closedCard.style.borderLeft = "5px solid #2f7cf6";
-                        closedCard.style.background = "#f0f7ff";
-
-                        // 3. Change the text and icon to show it's already submitted
-                        closedCard.innerHTML = `
-                    <h3 style="color: #1a62d6;">Closed Ticket Audit ✅</h3>
-                    <p style="font-size: 12px; margin: 5px 0 0 0; color: #555;">
-                        Already submitted. <strong>Click to view record</strong>
-                    </p>
-                `;
-
-                        // 4. Overwrite the onclick function to redirect to the URL
-                        closedCard.onclick = function () {
-                            window.open(auditUrl, '_blank');
-                        };
-                    }
-                }
+                // Call the new UI function here
+                updateDashboardUI(existingAuditId);
             }
         });
 
@@ -205,10 +204,52 @@ window.onload = function () {
                 headers: { "orgId": "850352696", "featureFlags": "lookUp" },
                 connectionLinkName: "zdesk"
             }).then(function (submitRes) {
-                console.log("Audit Widget: API Success Response:", submitRes);
-                statusMsg.innerText = "Audit Submitted Successfully!";
-                statusMsg.style.color = "green";
+                console.log("Raw Response received:", submitRes);
+
+                try {
+                    // Step 1: Normalize SDK wrapper
+                    const wrapper =
+                        submitRes.response ||
+                        submitRes.responseText ||
+                        submitRes;
+
+                    // Step 2: Ensure wrapper is an object
+                    const parsedWrapper =
+                        typeof wrapper === "string"
+                            ? JSON.parse(wrapper)
+                            : wrapper;
+
+                    console.log("Parsed Wrapper:", parsedWrapper);
+
+                    // Step 3: Parse the actual Zoho response payload
+                    const payload =
+                        typeof parsedWrapper.response === "string"
+                            ? JSON.parse(parsedWrapper.response)
+                            : parsedWrapper.response;
+
+                    console.log("Parsed Payload:", payload);
+
+                    // 🔑 Correct path
+                    const newAuditId = payload?.statusMessage?.id;
+
+                    if (newAuditId) {
+                        statusMsg.innerText = "Audit Submitted Successfully!";
+                        statusMsg.style.color = "green";
+
+                        updateDashboardUI(newAuditId);
+                    } else {
+                        console.error("Audit ID not found in payload:", payload);
+                    }
+
+                } catch (err) {
+                    console.error("Error parsing submit response:", err, submitRes);
+                }
+
+
+
+                // Go back to dashboard after 2 seconds
                 setTimeout(goBack, 2000);
+
             }).catch(function (error) {
                 console.error("Audit Widget: API Submission Error Details:", error);
                 statusMsg.innerText = "Submission Error. Check console.";
