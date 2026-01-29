@@ -92,13 +92,37 @@ window.onload = function () {
             if (userData && userData.user) currentUser = userData.user;
         });
 
-        // Fetch Ticket Info
         ZOHODESK.get('ticket').then(function (res) {
             if (res.status === 'success') {
                 currentTicket = res.ticket;
-                console.log("Fetching audits for:", currentTicket.id);
 
+                const existingAuditId = currentTicket.cf ? currentTicket.cf.cf_closed_ticket_audit_id : null;
 
+                if (existingAuditId && existingAuditId.trim() !== "") {
+                    const auditUrl = `https://desk.zoho.com/agent/shijigroupintl1712612666536/infrasys-support/ticket-audits/details/${existingAuditId}`;
+
+                    // 1. Find the Closed Ticket Audit Card
+                    const closedCard = document.querySelector(".audit-card[onclick*='closed']");
+
+                    if (closedCard) {
+                        // 2. Change the styling to indicate it's a link now
+                        closedCard.style.borderLeft = "5px solid #2f7cf6";
+                        closedCard.style.background = "#f0f7ff";
+
+                        // 3. Change the text and icon to show it's already submitted
+                        closedCard.innerHTML = `
+                    <h3 style="color: #1a62d6;">Closed Ticket Audit ✅</h3>
+                    <p style="font-size: 12px; margin: 5px 0 0 0; color: #555;">
+                        Already submitted. <strong>Click to view record</strong>
+                    </p>
+                `;
+
+                        // 4. Overwrite the onclick function to redirect to the URL
+                        closedCard.onclick = function () {
+                            window.open(auditUrl, '_blank');
+                        };
+                    }
+                }
             }
         });
 
@@ -156,14 +180,14 @@ window.onload = function () {
                     "cf_priority": document.getElementById('priority-dropdown').value,
                     "cf_resolution_code": document.getElementById('res-code-dropdown').value,
                     "cf_contact_information": document.getElementById('contact-info-dropdown').value,
-                    "cf_account":document.getElementById('account-dropdown').value,
-                    "cf_picklist_1":document.getElementById('ticket-resolution').value,
-                    "cf_ticket_subject":document.getElementById('subject-dropdown').value,
-                    "cf_ticket_classification":document.getElementById('class-dropdown').value,
-                    "cf_ticket_category":document.getElementById('cat-dropdown').value,
-                    "cf_ticket_sub_category":document.getElementById('subcat-dropdown').value,
-                    "cf_ticket_sub_sub_category":document.getElementById('sscat-dropdown').value,
-                    "cf_ticket_sub_sub_sub_category":document.getElementById('ssscat-dropdown').value,
+                    "cf_account": document.getElementById('account-dropdown').value,
+                    "cf_picklist_1": document.getElementById('ticket-resolution').value,
+                    "cf_ticket_subject": document.getElementById('subject-dropdown').value,
+                    "cf_ticket_classification": document.getElementById('class-dropdown').value,
+                    "cf_ticket_category": document.getElementById('cat-dropdown').value,
+                    "cf_ticket_sub_category": document.getElementById('subcat-dropdown').value,
+                    "cf_ticket_sub_sub_category": document.getElementById('sscat-dropdown').value,
+                    "cf_ticket_sub_sub_sub_category": document.getElementById('ssscat-dropdown').value,
                     "cf_correct_contact_information": document.getElementById('customer-reason').value,
                     "cf_correct_resolution_code_reason": document.getElementById('categories-reason').value,
                     "cf_correct_priority_reason": document.getElementById('closing-reason').value,

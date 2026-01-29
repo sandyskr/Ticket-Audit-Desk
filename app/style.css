@@ -144,3 +144,24 @@ select {
     background-repeat: no-repeat;
     background-position: right 0;
 }
+
+#status-msg a {
+    display: inline-block;
+    margin-left: 5px;
+    transition: color 0.2s;
+}
+#status-msg a:hover {
+    color: #1a62d6;
+}
+
+.audit-card h3 {
+    transition: color 0.2s;
+}
+
+/* Optional: Add a small external link icon after the text */
+.audit-card[onclick*='window.open']::after {
+    content: " ↗";
+    font-size: 12px;
+    vertical-align: top;
+    color: #2f7cf6;
+}
