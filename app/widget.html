@@ -169,12 +169,19 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
+        .header-green {
+    background-color: #e3f2fd; /* Green */
+    color: #28a745; /* Green */
+}
         .header-blue {
             background-color: #e3f2fd;
             color: #1976d2;
         }
 
+        .header-purple {
+    background-color: #e3f2fd; /* Purple */
+    color: #6f42c1; /* Purple */
+}
         .header-orange {
             background-color: #fff3e0;
             color: #f57c00;
@@ -333,30 +340,153 @@
                 </div>
 
                 <div id="call-audit-sections" class="audit-group hidden">
-                    <div class="section-header header-blue">Customer Service</div>
-                    <div class="field-block"><label>Narrow the Scope of the Call</label><select class="audit-dropdown"
-                            id="ca-scope">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select></div>
-                    <div class="field-block"><label>Professional Tone</label><select class="audit-dropdown"
-                            id="ca-tone">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select></div>
-                    <textarea id="ca-reason-1" class="hidden" placeholder="Comments for Section 1..."></textarea>
+                    <div class="audit-section" id="section-ca-service">
+                        <div class="section-header header-green">Customer Service</div>
 
-                    <div class="section-header header-orange" style="margin-top:20px">Process Knowledge
+                        <div class="field-block">
+                            <label>Customer Information and Issue Details</label>
+                            <select class="audit-dropdown" id="ca-gather-info">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Speak in Friendly, Polite, and Professional Tone</label>
+                            <select class="audit-dropdown" id="ca-tone">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Narrow Scope of the Call</label>
+                            <select class="audit-dropdown" id="ca-scope">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Actively Listen to the Customer, Control Call Pace</label>
+                            <select class="audit-dropdown" id="ca-listen">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Greet Customer and Identify Self and Product</label>
+                            <select class="audit-dropdown" id="ca-greet">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Follow Proper Hold Procedures</label>
+                            <select class="audit-dropdown" id="ca-hold">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="reason-wrapper hidden" id="ca-service-reason-wrapper">
+                            <label class="sub-label">Customer Service Comments</label>
+                            <textarea id="ca-service-reason" placeholder="Explain incorrect selections..."></textarea>
+                        </div>
                     </div>
-                    <div class="field-block"><label>Policies and Procedures</label><select class="audit-dropdown"
-                            id="ca-policy">
-                            <option value="">-- Select --</option>
-                            <option value="Correct">Correct</option>
-                            <option value="Incorrect">Incorrect</option>
-                        </select></div>
-                    <textarea id="ca-reason-2" class="hidden" placeholder="Comments for Section 2..."></textarea>
+
+                    <hr class="separator">
+
+                    <div class="audit-section" id="section-ca-process">
+                        <div class="section-header header-purple">Process Knowledge</div>
+
+                        <div class="field-block">
+                            <label>Policies and Procedures</label>
+                            <select class="audit-dropdown" id="ca-policy">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Demonstrate Knowledge of Product</label>
+                            <select class="audit-dropdown" id="ca-prod-knowledge">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Accurate and Complete Information</label>
+                            <select class="audit-dropdown" id="ca-accuracy">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Use Available Resources</label>
+                            <select class="audit-dropdown" id="ca-resources">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="reason-wrapper hidden" id="ca-process-reason-wrapper">
+                            <label class="sub-label">Process Knowledge Comments</label>
+                            <textarea id="ca-process-reason" placeholder="Explain incorrect selections..."></textarea>
+                        </div>
+                    </div>
+
+                    <hr class="separator">
+
+                    <div class="audit-section" id="section-ca-closing">
+                        <div class="section-header header-blue">Closing and Other</div>
+
+                        <div class="field-block">
+                            <label>Document Call and Next Steps in ZohoDesk</label>
+                            <select class="audit-dropdown" id="ca-doc">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Confirm Customer Needs were Met</label>
+                            <select class="audit-dropdown" id="ca-confirm">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="field-block">
+                            <label>Close on Positive Note</label>
+                            <select class="audit-dropdown" id="ca-close-note">
+                                <option value="">-- Select --</option>
+                                <option value="Correct">Correct</option>
+                                <option value="Incorrect">Incorrect</option>
+                            </select>
+                        </div>
+
+                        <div class="reason-wrapper hidden" id="ca-closing-reason-wrapper">
+                            <label class="sub-label">Closing Comments</label>
+                            <textarea id="ca-closing-reason" placeholder="Explain incorrect selections..."></textarea>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="priority-audit-sections" class="audit-group hidden">
