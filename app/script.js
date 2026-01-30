@@ -167,7 +167,14 @@ window.onload = function () {
         ZOHODESK.get('ticket').then(function (res) {
             if (res.status === 'success') {
                 currentTicket = res.ticket;
-                currentTicket = res.ticket;
+                const closedCard = document.querySelector(".audit-card[onclick*='closed']");
+        if (closedCard) {
+            if (currentTicket.status === 'Closed') {
+                closedCard.classList.remove('hidden'); // Show if closed
+            } else {
+                closedCard.classList.add('hidden');    // Hide if not closed
+            }
+        }
                 const closedAuditId = currentTicket.cf ? currentTicket.cf.cf_closed_ticket_audit_id : null;
                 const callAuditId = currentTicket.cf ? currentTicket.cf.cf_call_audit_id : null;
 
