@@ -113,6 +113,11 @@ function goBack() {
     document.getElementById('message-container').classList.add('hidden');
     document.getElementById('status-msg').innerText = "";
     document.getElementById('audit-form').reset();
+    const submitBtn = document.getElementById('submit-audit');
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Submit Audit";
+    submitBtn.style.backgroundColor = "#2f7cf6"; // Reset to original blue
+    submitBtn.style.cursor = "pointer";
     document.querySelectorAll('.reason-wrapper').forEach(w => {
         w.classList.add('hidden');
         const txt = w.querySelector('textarea');
