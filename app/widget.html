@@ -169,19 +169,26 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .header-green {
-    background-color: #e3f2fd; /* Green */
-    color: #28a745; /* Green */
-}
+            background-color: #e3f2fd;
+            /* Green */
+            color: #28a745;
+            /* Green */
+        }
+
         .header-blue {
             background-color: #e3f2fd;
             color: #1976d2;
         }
 
         .header-purple {
-    background-color: #e3f2fd; /* Purple */
-    color: #6f42c1; /* Purple */
-}
+            background-color: #e3f2fd;
+            /* Purple */
+            color: #6f42c1;
+            /* Purple */
+        }
+
         .header-orange {
             background-color: #fff3e0;
             color: #f57c00;
@@ -208,7 +215,7 @@
         <div class="audit-card" onclick="openAuditForm('call')">
             <h3>Phone Call Audit</h3>
         </div>
-        <div class="audit-card" onclick="openAuditForm('priority')">
+        <div class="audit-card hidden" onclick="openAuditForm('priority')">
             <h3>Ticket Priority Audit</h3>
         </div>
     </div>
@@ -490,15 +497,19 @@
                 </div>
 
                 <div id="priority-audit-sections" class="audit-group hidden">
-                    <div class="section-header header-blue">Section 1 (Ticket Priority)</div>
-                    <div class="field-block"><label>Issue Priority</label><select class="audit-dropdown"
-                            id="pa-priority">
+                    <div class="section-header header-blue">Ticket Priority</div>
+                    <div class="field-block">
+                        <label>Issue Priority</label>
+                        <select class="audit-dropdown" id="pa-priority">
                             <option value="">-- Select --</option>
                             <option value="Correct">Correct</option>
                             <option value="Incorrect">Incorrect</option>
-                        </select></div>
-                    <textarea id="pa-reason-1" class="hidden"
-                        placeholder="Multiline Field for Priority Audit..."></textarea>
+                        </select>
+                    </div>
+                    <div class="reason-wrapper hidden" id="pa-reason-wrapper">
+                        <label class="sub-label">Priority Comments (Required)</label>
+                        <textarea id="pa-reason-1" placeholder="Reason for Priority Audit..."></textarea>
+                    </div>
                 </div>
 
                 <div class="footer-actions">

@@ -50,28 +50,42 @@ const AUDIT_SETTINGS = {
             "cf_close_on_positive_note": getVal('ca-close-note'),
             "cf_correct_priority_reason": getVal('ca-closing-reason'),
         })
-    }
+    },
+
+    'priority': {
+        "layout": "976852000868827671",
+        getFieldData: () => ({
+            "cf_priority": getVal('pa-priority'),
+            "cf_comments_ticket_priority": getVal('pa-reason-1'),
+
+        })
+    },
+
 };
 
 function updateDashboardUI(auditId, type) {
     if (auditId && auditId.trim() !== "") {
         const auditUrl = `https://desk.zoho.com/agent/shijigroupintl1712612666536/infrasys-support/ticket-audits/details/${auditId}`;
-        
+
         // Find the specific card based on the type passed (closed or call)
         const targetCard = document.querySelector(`.audit-card[onclick*='${type}']`);
 
         if (targetCard) {
+            // Determine Label
+            let label = 'Phone Call';
+            if (type === 'closed') label = 'Closed Ticket';
+            if (type === 'priority') label = 'Ticket Priority';
+
             targetCard.style.borderLeft = "5px solid #2f7cf6";
             targetCard.style.background = "#f0f7ff";
             targetCard.innerHTML = `
-                <h3 style="color: #1a62d6;">${type === 'closed' ? 'Closed Ticket' : 'Phone Call'} Audit ✅</h3>
+                <h3 style="color: #1a62d6;">${label} Audit ✅</h3>
                 <p style="font-size: 12px; margin: 5px 0 0 0; color: #555;">
                     Already submitted. <strong>Click to view record</strong>
                 </p>
             `;
-            // Redirect the click behavior to open the existing audit
             targetCard.onclick = function (e) {
-                e.stopPropagation(); // Prevent any default form opening logic
+                e.stopPropagation();
                 window.open(auditUrl, '_blank');
             };
         }
@@ -131,6 +145,10 @@ function updateSectionVisibility() {
         // Closing Section
         toggleReason(['ca-doc', 'ca-confirm', 'ca-close-note'], 'ca-closing-reason-wrapper');
     }
+    else if (activeAuditType === 'priority') {
+
+        toggleReason(['pa-priority'], 'pa-reason-wrapper');
+    }
 }
 
 /**
@@ -167,14 +185,25 @@ window.onload = function () {
         ZOHODESK.get('ticket').then(function (res) {
             if (res.status === 'success') {
                 currentTicket = res.ticket;
+                const status = currentTicket.status;
                 const closedCard = document.querySelector(".audit-card[onclick*='closed']");
-        if (closedCard) {
-            if (currentTicket.status === 'Closed') {
-                closedCard.classList.remove('hidden'); // Show if closed
-            } else {
-                closedCard.classList.add('hidden');    // Hide if not closed
-            }
-        }
+                const priorityCard = document.querySelector(".audit-card[onclick*='priority']");
+
+                if (priorityCard) {
+                    if (status === 'Open' || status === 'On Hold') {
+                        priorityCard.classList.remove('hidden');
+                    } else {
+                        priorityCard.classList.add('hidden');
+                    }
+                }
+                if (closedCard) {
+                    if (currentTicket.status === 'Closed') {
+                        closedCard.classList.remove('hidden'); // Show if closed
+                    } else {
+                        closedCard.classList.add('hidden');    // Hide if not closed
+                    }
+                }
+                const priorityAuditId = currentTicket.cf?.cf_priority_audit_id;
                 const closedAuditId = currentTicket.cf ? currentTicket.cf.cf_closed_ticket_audit_id : null;
                 const callAuditId = currentTicket.cf ? currentTicket.cf.cf_call_audit_id : null;
 
@@ -184,6 +213,9 @@ window.onload = function () {
                 }
                 if (callAuditId && callAuditId !== "") {
                     updateDashboardUI(callAuditId, 'call');
+                }
+                if (priorityAuditId && priorityAuditId !== "") {
+                    updateDashboardUI(priorityAuditId, 'priority');
                 }
             }
         });
