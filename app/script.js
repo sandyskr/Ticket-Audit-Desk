@@ -179,6 +179,39 @@ function toggleReason(inputIds, wrapperId) {
         }
     }
 }
+function getStatusType(status) {
+    const OPEN_STATUSES = [
+        'Assigned',
+        'Open',
+        'In Progress',
+        'Escalated'
+    ];
+
+    const ON_HOLD_STATUSES = [
+        'On Hold',
+        'Pending Customer',
+        'Pending Update',
+        'Monitoring',
+        'Pending Remote Access Permission',
+        'Pending Vendor',
+        'Pending Product',
+        'Feature Request',
+        'Pending Development',
+        'Resolved',
+        'Property Unavailable'
+    ];
+
+    const CLOSED_STATUSES = [
+        'Closed',
+        'Closed Feature as Intended'
+    ];
+
+    if (OPEN_STATUSES.includes(status)) return 'OPEN';
+    if (ON_HOLD_STATUSES.includes(status)) return 'ON HOLD';
+    if (CLOSED_STATUSES.includes(status)) return 'CLOSED';
+
+    return 'UNKNOWN';
+}
 
 window.onload = function () {
     ZOHODESK.extension.onload().then(function (App) {
@@ -189,40 +222,66 @@ window.onload = function () {
 
         ZOHODESK.get('ticket').then(function (res) {
             if (res.status === 'success') {
+                console.clear();
+                console.log(res);
+
                 currentTicket = res.ticket;
-                const status = currentTicket.status;
+
+                const status = currentTicket.status; // actual Zoho status
+                const statusType = getStatusType(status);
+
+                console.log("Status:", status);
+                console.log("Derived Status Type:", statusType);
+
+                const channel = currentTicket.channel;
                 const closedCard = document.querySelector(".audit-card[onclick*='closed']");
                 const priorityCard = document.querySelector(".audit-card[onclick*='priority']");
+                const callCard = document.querySelector(".audit-card[onclick*='call']");
 
+                /* ---------------- Phone Call Audit ---------------- */
+                if (callCard) {
+                    if (channel === 'Phone') {
+                        callCard.classList.remove('hidden');
+                    } else {
+                        callCard.classList.add('hidden');
+                    }
+                }
+
+                /* ---------------- Priority Audit ---------------- */
+                // OPEN + ON HOLD
                 if (priorityCard) {
-                    if (status === 'Open' || status === 'On Hold') {
+                    if (statusType === 'OPEN' || statusType === 'ON HOLD') {
                         priorityCard.classList.remove('hidden');
                     } else {
                         priorityCard.classList.add('hidden');
                     }
                 }
+
+                /* ---------------- Closed Audit ---------------- */
                 if (closedCard) {
-                    if (currentTicket.status === 'Closed') {
-                        closedCard.classList.remove('hidden'); // Show if closed
+                    if (statusType === 'CLOSED') {
+                        closedCard.classList.remove('hidden');
                     } else {
-                        closedCard.classList.add('hidden');    // Hide if not closed
+                        closedCard.classList.add('hidden');
                     }
                 }
-                const priorityAuditId = currentTicket.cf?.cf_priority_audit_id;
-                const closedAuditId = currentTicket.cf ? currentTicket.cf.cf_closed_ticket_audit_id : null;
-                const callAuditId = currentTicket.cf ? currentTicket.cf.cf_call_audit_id : null;
 
-                // Update dashboard status for both independently
-                if (closedAuditId && closedAuditId !== "") {
+                /* ---------------- Audit IDs ---------------- */
+                const priorityAuditId = currentTicket.cf?.cf_priority_audit_id;
+                const closedAuditId = currentTicket.cf?.cf_closed_ticket_audit_id;
+                const callAuditId = currentTicket.cf?.cf_call_audit_id;
+
+                if (closedAuditId) {
                     updateDashboardUI(closedAuditId, 'closed');
                 }
-                if (callAuditId && callAuditId !== "") {
+                if (callAuditId) {
                     updateDashboardUI(callAuditId, 'call');
                 }
-                if (priorityAuditId && priorityAuditId !== "") {
+                if (priorityAuditId) {
                     updateDashboardUI(priorityAuditId, 'priority');
                 }
             }
+
         });
 
         // Event Listeners for Dropdowns
