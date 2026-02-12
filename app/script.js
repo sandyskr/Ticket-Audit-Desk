@@ -12,7 +12,7 @@ let activeAuditType = '';
 
 const AUDIT_SETTINGS = {
     'closed': {
-        "layout": "976852000868484970",
+        "layout": "255139000933986149",
         getFieldData: () => ({
             "cf_priority": getVal('priority-dropdown'),
             "cf_resolution_code": getVal('res-code-dropdown'),
@@ -31,7 +31,7 @@ const AUDIT_SETTINGS = {
         })
     },
     'call': {
-        "layout": "976852000868866943",
+        "layout": "255139000936102233",
         getFieldData: () => ({
             "cf_customer_information_and_issue_details": getVal('ca-gather-info'),
             "cf_speak_in_friendly_polite_and_professional_tone": getVal('ca-tone'),
@@ -51,11 +51,11 @@ const AUDIT_SETTINGS = {
             "cf_correct_priority_reason": getVal('ca-closing-reason'),
         })
     },
-
+ 
     'priority': {
-        "layout": "976852000868827671",
+        "layout": "255139000936099808",
         getFieldData: () => ({
-            "cf_priority": getVal('pa-priority'),
+            "cf_ticket_priority": getVal('pa-priority'),
             "cf_comments_ticket_priority": getVal('pa-reason-1'),
 
         })
@@ -65,7 +65,7 @@ const AUDIT_SETTINGS = {
 
 function updateDashboardUI(auditId, type) {
     if (auditId && auditId.trim() !== "") {
-        const auditUrl = `https://desk.zoho.com/agent/shijigroupintl1712612666536/infrasys-support/ticket-audits/details/${auditId}`;
+        const auditUrl = `https://support-intl.shijigroup.com/agent/shijigroupintl/infrasys-support/ticket-audits/details/${auditId}`;
 
         // Find the specific card based on the type passed (closed or call)
         const targetCard = document.querySelector(`.audit-card[onclick*='${type}']`);
@@ -339,22 +339,23 @@ window.onload = function () {
                 "owner": currentUser.id,
                 "layout": settings.layout,
                 "cf": {
-                    "cf_ticket_number_1": currentTicket.number,
-                    "cf_ticket_number": currentTicket.id.toString(),
+                    "cf_ticket_number": currentTicket.number,
+                    "cf_ticket_lookup": currentTicket.id.toString(),
                     "cf_ticket_owner_name": currentTicket.owner,
                     ...settings.getFieldData()
 
 
                 }
             };
-
+            console.clear();
+            console.log("audit data=>",auditData);
             statusMsg.innerText = "Submitting...";
             statusMsg.style.color = "#666";
             ZOHODESK.request({
-                url: 'https://desk.zoho.com/api/v1/cm_ticket_audits',
+                url: 'https://desk.zoho.com/api/v1/cm_ticket_audits_1',
                 type: 'POST',
                 postBody: auditData,
-                headers: { "orgId": "850352696", "featureFlags": "lookUp" },
+                headers: { "orgId": "662586226", "featureFlags": "lookUp" },
                 connectionLinkName: "zdesk"
             }).then(function (submitRes) {
                 console.log("Raw Response received:", submitRes);
