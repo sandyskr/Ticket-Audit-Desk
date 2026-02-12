@@ -14,7 +14,7 @@ const AUDIT_SETTINGS = {
     'closed': {
         "layout": "255139000933986149",
         getFieldData: () => ({
-            "cf_priority": getVal('priority-dropdown'),
+            "cf_ticket_priority": getVal('priority-dropdown'),
             "cf_resolution_code": getVal('res-code-dropdown'),
             "cf_contact_information": getVal('contact-info-dropdown'),
             "cf_account": getVal('account-dropdown'),
@@ -23,11 +23,11 @@ const AUDIT_SETTINGS = {
             "cf_ticket_classification": getVal('class-dropdown'),
             "cf_ticket_category": getVal('cat-dropdown'),
             "cf_ticket_sub_category": getVal('subcat-dropdown'),
-            "cf_ticket_sub_sub_category": getVal('sscat-dropdown'),
+            "cf_picklist_1tickett_sub_sub_category": getVal('sscat-dropdown'),
             "cf_ticket_sub_sub_sub_category": getVal('ssscat-dropdown'),
-            "cf_correct_contact_information": getVal('customer-reason'),
-            "cf_correct_resolution_code_reason": getVal('categories-reason'),
-            "cf_correct_priority_reason": getVal('closing-reason'),
+            "cf_comments_customer_and_environment": getVal('customer-reason'),
+            "cf_comments_issue_description_and_categories": getVal('categories-reason'),
+            "cf_comments_closing_and_other": getVal('closing-reason'),
         })
     },
     'call': {
@@ -47,8 +47,8 @@ const AUDIT_SETTINGS = {
             "cf_comments_process_knowledge": getVal('ca-process-reason'),
             "cf_document_call_and_next_steps_in_zoho_desk": getVal('ca-doc'),
             "cf_confirm_customer_needs_were_met": getVal('ca-confirm'),
-            "cf_close_on_positive_note": getVal('ca-close-note'),
-            "cf_correct_priority_reason": getVal('ca-closing-reason'),
+            "cf_close_on_a_positive_note": getVal('ca-close-note'),
+            "cf_comments_closing_and_other": getVal('ca-closing-reason'),
         })
     },
  
