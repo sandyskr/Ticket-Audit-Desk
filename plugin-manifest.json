@@ -23,22 +23,28 @@
     "connect-src": []
   },
   "zohoAuthorisation": {
-    "type":"connectors",
-    	"connectionLinkName": "zdesk",
-	"connectionName": "zdesk",
-	"serviceName": "zoho_desk",
-	"userAccess": false,
-	"isUserDefinedService": false,
-	"sharedBy": "662586226",
-	"scope": [
-		"Desk.basic.ALL",
-		"Desk.custommodule.READ",
-		"Desk.custommodule.DELETE",
-		"Desk.custommodule.CREATE",
-		"Desk.custommodule.UPDATE",
-		"Desk.tickets.ALL"
-	]
-
+    "type": "connectors",
+    "connectionLinkName": "zdesk",
+    "connectionName": "zdesk",
+    "serviceName": "zlabs_integration",
+    "userAccess": false,
+    "isUserDefinedService": false,
+    "sharedBy": "850352696",
+    "scope": [
+      "Desk.tickets.ALL",
+      "Desk.tasks.ALL",
+      "Desk.settings.ALL",
+      "Desk.extensions.ALL",
+      "Desk.zia.ALL",
+      "Desk.contacts.ALL",
+      "Desk.basic.ALL",
+      "Desk.articles.ALL",
+      "Desk.calls.ALL",
+      "Desk.events.ALL",
+      "Desk.community.ALL",
+      "Desk.integrations.ALL",
+      "Desk.custommodule.ALL"
+    ]
   },
   "connectors": [],
   "config": [],
