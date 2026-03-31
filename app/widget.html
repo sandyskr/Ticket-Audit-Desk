@@ -223,6 +223,66 @@
     <div id="main-widget-content" class="hidden">
         <div class="widget-container">
             <div class="back-btn" onclick="goBack()">← BACK TO SELECTION</div>
+            
+            <div class="field-block" style="padding: 0 15px; position: relative;">
+				<label>Evaluated Agent Name</label>
+
+				<div id="agent-display" onclick="toggleAgentDropdown()" style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 13px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        border-bottom: 1px solid #ebebeb;
+        cursor: pointer;
+        user-select: none;
+        transition: border-color 0.2s;
+    ">
+					<span id="agent-display-text" style="color: #aaa;">-None-</span>
+					<span id="agent-chevron" style="font-size: 10px; color: #666; line-height: 1;">▼</span>
+				</div>
+
+				<div id="agent-panel" style="
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-top: none;
+        z-index: 999;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    ">
+					<div style="padding: 6px 0; border-bottom: 1px solid #ebebeb; display: flex; align-items: center;">
+						<input type="text" id="agent-search-input" placeholder="Search..." autocomplete="off" style="
+                    flex: 1;
+                    border: none;
+                    border-bottom: 1px solid #2f7cf6;
+                    outline: none;
+                    font-size: 13px;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    color: #333;
+                    background: transparent;
+                    padding: 4px 0;
+                    margin: 0 10px;
+                " oninput="filterAgents()" />
+						<span id="agent-clear-btn" onclick="clearAgentSearch()" style="
+                cursor: pointer;
+                color: #bbb;
+                font-size: 13px;
+                display: none;
+                margin-right: 8px;
+                line-height: 1;
+            ">✕</span>
+					</div>
+					<div id="agent-list" style="max-height: 190px; overflow-y: auto;"></div>
+				</div>
+
+				<input type="hidden" id="evaluated-agent" value="" />
+			</div>
+			<hr class="separator">
             <form id="audit-form">
 
                 <div id="closed-audit-sections" class="audit-group hidden">

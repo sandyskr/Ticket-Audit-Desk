@@ -14,6 +14,7 @@ const AUDIT_SETTINGS = {
     'closed': {
         "layout": "255139000933986149",
         getFieldData: () => ({
+            "cf_evaluated_agent_closed_ticket_audit": getVal('evaluated-agent'),
             "cf_ticket_priority": getVal('priority-dropdown'),
             "cf_resolution_code": getVal('res-code-dropdown'),
             "cf_ticket_resolution": getVal('ticket-resolution'),
@@ -33,6 +34,7 @@ const AUDIT_SETTINGS = {
     'call': {
         "layout": "255139000936102233",
         getFieldData: () => ({
+            "cf_evaluated_agent_closed_ticket_audit": getVal('evaluated-agent'),
             "cf_customer_information_and_issue_details": getVal('ca-gather-info'),
             "cf_policies_and_procedures": getVal('ca-policy'),
             "cf_demonstrate_knowledge_of_product": getVal('ca-prod-knowledge'),
@@ -51,10 +53,11 @@ const AUDIT_SETTINGS = {
             "cf_comments_closing_and_other": getVal('ca-closing-reason'),
         })
     },
- 
+
     'priority': {
         "layout": "255139000936099808",
         getFieldData: () => ({
+            "cf_evaluated_agent_closed_ticket_audit": getVal('evaluated-agent'),
             "cf_ticket_priority": getVal('pa-priority'),
             "cf_comments_ticket_priority": getVal('pa-reason-1'),
 
@@ -113,7 +116,12 @@ function goBack() {
     document.getElementById('message-container').classList.add('hidden');
     document.getElementById('status-msg').innerText = "";
     document.getElementById('audit-form').reset();
-    const submitBtn = document.getElementById('submit-audit');
+    document.getElementById('evaluated-agent').value = '';
+    document.getElementById('agent-display-text').textContent = '-None-';
+    document.getElementById('agent-display-text').style.color = '#aaa';
+    document.getElementById('agent-display').style.borderBottom = '1px solid #ebebeb';
+    document.getElementById('agent-display').style.backgroundColor = '';
+    closeAgentDropdown(); const submitBtn = document.getElementById('submit-audit');
     submitBtn.disabled = false;
     submitBtn.innerText = "Submit Audit";
     submitBtn.style.backgroundColor = "#2f7cf6"; // Reset to original blue
@@ -213,9 +221,161 @@ function getStatusType(status) {
     return 'UNKNOWN';
 }
 
+const AGENTS = [
+    "Aleksandra Zubel",
+    "Maria Grzybek",
+    "Jakub Petela",
+    "Kristína Cádriková",
+    "Arkadiusz Bielecki",
+    "Wojciech Szot",
+    "Kamila Bielecka",
+    "Wojciech Kramarczyk",
+    "Kinga Rabsztyn",
+    "Ivan Bogojeciv",
+    "Cesar Aranda",
+    "Josue Ruelas",
+    "Gabriel Cardoso",
+    "Josue Rubio",
+    "Diego Rodriguez",
+    "David Belderrain",
+    "Carlos Espinosa",
+    "Norman Castro",
+    "Damoteran Marimuthu",
+    "Michihiro Takahashi",
+    "Mohit Katuwal",
+    "Narumi Higareda Leon",
+    "Khoa Le",
+    "Arup Saha",
+    "Nick Genon",
+    "Ryan Carilla",
+    "Heriberto Ang",
+    "Chan Lee",
+    "Yuka Watanabe",
+    "MaoChuan Soo",
+    "Rainbow Yong",
+    "Kornchawal Panawas",
+    "HongYuan Sun",
+    "Charles C J Chia",
+    "Ashwani Sharma",
+    "Arup Ghosh",
+    "Neeraj Joon",
+    "Vishal Sharma",
+    "Elijah Ang",
+    "Shirley Leong",
+    "Rashi Garg",
+    "Napat Pattanakitcharoenkarn"
+];
+
+let agentPanelOpen = false;
+
+function renderAgentList(filter) {
+    const list = document.getElementById('agent-list');
+    const filtered = filter
+        ? AGENTS.filter(a => a.toLowerCase().includes(filter.toLowerCase()))
+        : AGENTS;
+
+    list.innerHTML = '';
+
+    if (filtered.length === 0) {
+        const el = document.createElement('div');
+        el.textContent = 'No agents found';
+        el.style.cssText = `
+            padding: 8px 10px;
+            font-size: 13px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #aaa;
+            font-style: italic;
+        `;
+        list.appendChild(el);
+    } else {
+        filtered.forEach(agent => {
+            const el = document.createElement('div');
+            el.textContent = agent;
+            el.style.cssText = `
+                padding: 8px 10px;
+                font-size: 13px;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                font-weight: 400;
+                color: #333;
+                cursor: pointer;
+                border-bottom: 1px solid #f5f5f5;
+                line-height: 1.4;
+                box-sizing: border-box;
+            `;
+            el.onmouseover = () => {
+                el.style.backgroundColor = '#f0f5ff';
+                el.style.color = '#2f7cf6';
+            };
+            el.onmouseout = () => {
+                el.style.backgroundColor = 'transparent';
+                el.style.color = '#333';
+            };
+            el.onclick = () => selectAgent(agent);
+            list.appendChild(el);
+        });
+    }
+}
+
+function toggleAgentDropdown() {
+    agentPanelOpen ? closeAgentDropdown() : openAgentDropdown();
+}
+
+function openAgentDropdown() {
+    agentPanelOpen = true;
+    document.getElementById('agent-panel').style.display = 'block';
+    document.getElementById('agent-chevron').textContent = '▲';
+    document.getElementById('agent-display').style.borderBottomColor = '#2f7cf6';
+    document.getElementById('agent-search-input').value = '';
+    document.getElementById('agent-clear-btn').style.display = 'none';
+    renderAgentList('');
+    setTimeout(() => document.getElementById('agent-search-input').focus(), 0);
+    setTimeout(() => document.addEventListener('click', outsideAgentClick), 0);
+}
+
+function closeAgentDropdown() {
+    agentPanelOpen = false;
+    document.getElementById('agent-panel').style.display = 'none';
+    document.getElementById('agent-chevron').textContent = '▼';
+    document.getElementById('agent-display').style.borderBottomColor = '#ebebeb';
+    document.removeEventListener('click', outsideAgentClick);
+}
+
+function outsideAgentClick(e) {
+    const panel = document.getElementById('agent-panel');
+    const display = document.getElementById('agent-display');
+    if (!panel.contains(e.target) && !display.contains(e.target)) {
+        closeAgentDropdown();
+    }
+}
+
+function selectAgent(name) {
+    document.getElementById('evaluated-agent').value = name;
+    document.getElementById('evaluated-agent').classList.remove('error-border');
+    const displayText = document.getElementById('agent-display-text');
+    displayText.textContent = name;
+    displayText.style.color = '#333';
+    document.getElementById('agent-display').style.borderBottomColor = '#ebebeb';
+    closeAgentDropdown();
+}
+
+function filterAgents() {
+    const val = document.getElementById('agent-search-input').value;
+    document.getElementById('agent-clear-btn').style.display = val ? 'inline' : 'none';
+    renderAgentList(val);
+}
+
+function clearAgentSearch() {
+    document.getElementById('agent-search-input').value = '';
+    document.getElementById('agent-clear-btn').style.display = 'none';
+    renderAgentList('');
+    document.getElementById('agent-search-input').focus();
+}
+
 window.onload = function () {
     ZOHODESK.extension.onload().then(function (App) {
         // Fetch User Info
+        ZOHODESK.invoke("RESIZE", { width: "100%", height: "600px" });
+
         ZOHODESK.get('user').then(function (userData) {
             if (userData && userData.user) currentUser = userData.user;
         });
@@ -311,6 +471,16 @@ window.onload = function () {
                 }
             });
 
+            const agentHidden = document.getElementById('evaluated-agent');
+            if (!agentHidden.value) {
+                document.getElementById('agent-display').style.borderBottom = '2px solid #e53935';
+                document.getElementById('agent-display').style.backgroundColor = '#fff9f9';
+                isFormValid = false;
+            } else {
+                document.getElementById('agent-display').style.borderBottom = '';
+                document.getElementById('agent-display').style.backgroundColor = '';
+            }
+
             // 2. Validate visible reason wrappers/textareas
             const visibleReasonWrappers = document.querySelectorAll('.audit-group:not(.hidden) .reason-wrapper:not(.hidden)');
             visibleReasonWrappers.forEach(wrapper => {
@@ -333,8 +503,16 @@ window.onload = function () {
             submitBtn.style.backgroundColor = "#ccc"; // Grey out the button
             submitBtn.style.cursor = "not-allowed";
             // Payload Construction
+
+            let ticketSubject = currentTicket.subject || "No Subject";
+
+            // 2. Truncate to 120 characters to prevent Zoho 500 Error
+            if (ticketSubject.length > 120) {
+                ticketSubject = ticketSubject.substring(0, 117) + "...";
+            }
+
             const auditData = {
-                "name": currentTicket.subject || "No Subject",
+                "name": ticketSubject,
                 "department": currentTicket.departmentId,
                 "owner": currentUser.id,
                 "layout": settings.layout,
@@ -342,13 +520,16 @@ window.onload = function () {
                     "cf_ticket_number": currentTicket.number,
                     "cf_ticket_lookup": currentTicket.id.toString(),
                     "cf_ticket_owner_name": currentTicket.owner,
+                    "cf_ticket_owner_name_1": currentTicket.assignee.name,
+                    "cf_created_by_widget": true,
+
                     ...settings.getFieldData()
 
 
                 }
             };
             console.clear();
-            console.log("audit data=>",auditData);
+            console.log("audit data=>", auditData);
             statusMsg.innerText = "Submitting...";
             statusMsg.style.color = "#666";
             ZOHODESK.request({
