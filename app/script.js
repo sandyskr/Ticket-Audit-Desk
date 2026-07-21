@@ -231,7 +231,7 @@ const AGENTS = [
     "Kamila Bielecka",
     "Wojciech Kramarczyk",
     "Kinga Rabsztyn",
-    "Ivan Bogojeciv",
+    "Ivan Bogojevic",
     "Cesar Aranda",
     "Josue Ruelas",
     "Gabriel Cardoso",
@@ -263,7 +263,10 @@ const AGENTS = [
     "Elijah Ang",
     "Shirley Leong",
     "Rashi Garg",
-    "Napat Pattanakitcharoenkarn"
+    "Napat Pattanakitcharoenkarn",
+    "Khee Lhee Goh",
+    "Vivek Addagunta",
+    "Sunny Park"
 ];
 
 let agentPanelOpen = false;
