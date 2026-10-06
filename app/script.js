@@ -225,6 +225,7 @@ const AGENTS = [
     "Aleksandra Zubel",
     "Maria Grzybek",
     "Jakub Petela",
+    "Jakub Gašpierik",
     "Kristína Cádriková",
     "Arkadiusz Bielecki",
     "Wojciech Szot",
