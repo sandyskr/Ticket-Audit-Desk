@@ -223,6 +223,10 @@ function getStatusType(status) {
 
 const AGENTS = [
     "Aleksandra Zubel",
+    "Itzel Rangel",
+    "Adrian Romero",
+    "Bruno Reynoso",
+    "Genaro Minjares",
     "Maria Grzybek",
     "Jakub Petela",
     "Jakub Gašpierik",
